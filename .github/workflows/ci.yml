@@ -41,13 +41,16 @@ jobs:
           fi
 
       # CI-Agent aufrufen
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Call CI Analysis Agent
         if: always()
         run: |
-          curl -X POST "${{ secrets.CI_AGENT_URL }}/ci-analysis" \
+          curl -X POST "https://stoppable-obnoxious-ronald.ngrok-free.dev/ci-analysis" \
           -H "Content-Type: application/json" \
           -d "$(jq -n \
             --arg status "$CI_STATUS" \
-            --arg logs "$(cat test_output.txt)" \
+            --arg logs "$(cat test_output.txt | head -n 2000)" \
             --arg branch "${{ github.ref_name }}" \
             '{status: $status, logs: $logs, branch: $branch}')"
