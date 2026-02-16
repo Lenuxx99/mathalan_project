@@ -25,7 +25,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install pytest requests
-
+          
       # Tests ausführen und Logs speichern
       - name: Run tests
         id: run_tests
