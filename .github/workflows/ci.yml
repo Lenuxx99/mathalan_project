@@ -23,9 +23,8 @@ jobs:
       # Dependencies
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
           pip install pytest requests
-          
+
       # Tests ausführen und Logs speichern
       - name: Run tests
         id: run_tests
@@ -43,6 +42,7 @@ jobs:
 
       # CI-Agent aufrufen
       - name: Call CI Analysis Agent
+        if: always()
         run: |
           curl -X POST "${{ secrets.CI_AGENT_URL }}/ci-analysis" \
           -H "Content-Type: application/json" \
