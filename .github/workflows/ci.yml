@@ -24,12 +24,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install pytest requests
-
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
       # Tests ausführen und Logs speichern
       - name: Run tests
-        id: run_tests
-        run: |
-          pytest -q > test_output.txt || true
+        run: PYTHONPATH=. pytest -q > test_output.txt || true
 
       # Ergebnisstatus setzen
       - name: Set CI status
@@ -55,3 +54,4 @@ jobs:
             --arg branch "${{ github.ref_name }}" \
             '{status: $status, logs: $logs, branch: $branch}')"
             
+
