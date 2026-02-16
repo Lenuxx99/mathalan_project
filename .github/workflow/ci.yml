@@ -1,0 +1,53 @@
+name: CI with AIOps Agent
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test-and-analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Code holen
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Python Setup
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # Dependencies
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest requests
+
+      # Tests ausführen und Logs speichern
+      - name: Run tests
+        id: run_tests
+        run: |
+          pytest -q > test_output.txt || true
+
+      # Ergebnisstatus setzen
+      - name: Set CI status
+        run: |
+          if grep -q "failed" test_output.txt; then
+            echo "CI_STATUS=failed" >> $GITHUB_ENV
+          else
+            echo "CI_STATUS=success" >> $GITHUB_ENV
+          fi
+
+      # CI-Agent aufrufen
+      - name: Call CI Analysis Agent
+        run: |
+          curl -X POST "${{ secrets.CI_AGENT_URL }}/ci-analysis" \
+          -H "Content-Type: application/json" \
+          -d "$(jq -n \
+            --arg status "$CI_STATUS" \
+            --arg logs "$(cat test_output.txt)" \
+            --arg branch "${{ github.ref_name }}" \
+            '{status: $status, logs: $logs, branch: $branch}')"
