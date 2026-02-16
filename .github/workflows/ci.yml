@@ -54,3 +54,4 @@ jobs:
             --arg logs "$(cat test_output.txt | head -n 2000)" \
             --arg branch "${{ github.ref_name }}" \
             '{status: $status, logs: $logs, branch: $branch}')"
+            
